@@ -4,7 +4,6 @@ from random import sample
 from statistics import mean
 import argparse
 import ant_animate
-import fct_fourmis
 
 
 # TODO tourner jusqu'à ce que toutes fourmis mortes plutôt que tours
