@@ -200,14 +200,15 @@ class Mainframe(tk.Frame):
 
 
 class Visual_App(tk.Tk):
-    def __init__(self, ants_dict, foodx, foody, pv, delay=750):
+    def __init__(self, ants_dict, food, pv, delay=750):
         tk.Tk.__init__(self)
         self.title("My app")
         self.width = 500
         self.height = 500
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=1)
-        self.mainframe = Mainframe(self, width=self.width, height=self.height, food_coords=self._parse_food(foodx, foody), ants_dict=self._parse_ants_dict(ants_dict), pv=pv, delay=delay)
+        #self.mainframe = Mainframe(self, width=self.width, height=self.height, food_coords=self._parse_food(foodx, foody), ants_dict=self._parse_ants_dict(ants_dict), pv=pv, delay=delay)
+        self.mainframe = Mainframe(self, width=self.width, height=self.height, food_coords=food, ants_dict=ants_dict, pv=pv, delay=delay)
         
     def _parse_food(self, foodx, foody):
         return list(zip(foodx, foody))

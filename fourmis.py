@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from random import randint
+from random import sample
 from statistics import mean
 import argparse
 import ant_animate
@@ -26,63 +27,64 @@ args = parser.parse_args()
 mincoord = 0
 maxcoord = 20
 
-# TODO fonctions pour initialiser d_fourmis et food
-d_fourmis = {}
-for i in range(args.nb_fourmis):
-    d_fourmis[i] = {'x': [randint(mincoord, maxcoord)],
-                    'y': [randint(mincoord, maxcoord)],
-                    'pv': [args.pv_max]}
-foodx, foody = fct_fourmis.setFood(mincoord, maxcoord, args.nb_nourriture)
+
+def init(nb_fourmis, nb_nourriture, pv_max, mincoord, maxcoord):
+    all_coords = [(x, y) for x in range(mincoord, maxcoord)
+                         for y in range(mincoord, maxcoord)]
+    ant_dict = {}
+    for i in range(args.nb_fourmis):
+        ant_dict[i] = {'coords': sample(all_coords, 1),
+                        'life': [pv_max]}
+    food = sample(all_coords, nb_nourriture)
+    return food, ant_dict
+
+food, d_fourmis = init(args.nb_fourmis, args.nb_nourriture, args.pv_max, mincoord, maxcoord)
 
 
 for tour in range(args.tours):
     # déplacement et dépense énergie
-    for i in d_fourmis.keys():
+    for i in d_fourmis:
         # si la fourmi a plus de la moitié de ses pv
         # OU qu'elle a plus de 0 pv
         # ET une chance sur deux
-        if (d_fourmis[i]['pv'][tour] > (args.pv_max / 2)
-                or d_fourmis[i]['pv'][tour] > 0
+        if (d_fourmis[i]['life'][tour] > (args.pv_max / 2)
+                or d_fourmis[i]['life'][tour] > 0
                 and randint(0, 1) == 1):
             # alors elle bouge
             # si elle dépasse une limite, elle se déplace sur le bord opposé
             direction = randint(0, 3)
             if direction == 0:
                 # déplacement vers le haut
-                d_fourmis[i]['y'].append((d_fourmis[i]['y'][tour] + 1) % maxcoord)
-                d_fourmis[i]['x'].append(d_fourmis[i]['x'][tour])
+                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] + 1) % maxcoord),
+                                              (d_fourmis[i]['coords'][tour][1])))
             elif direction == 1:
                 # déplacement vers le bas
-                d_fourmis[i]['y'].append((d_fourmis[i]['y'][tour] - 1) % maxcoord)
-                d_fourmis[i]['x'].append(d_fourmis[i]['x'][tour])
+                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] - 1) % maxcoord),
+                                              (d_fourmis[i]['coords'][tour][1])))
             elif direction == 2:
                 # déplacement vers la droite 
-                d_fourmis[i]['x'].append((d_fourmis[i]['x'][tour] + 1) % maxcoord) 
-                d_fourmis[i]['y'].append(d_fourmis[i]['y'][tour]) 
+                d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
+                                              ((d_fourmis[i]['coords'][tour][1] + 1) % maxcoord)))
             else: 
                 # déplacement vers la gauche
-                d_fourmis[i]['x'].append((d_fourmis[i]['x'][tour] - 1) % maxcoord)
-                d_fourmis[i]['y'].append(d_fourmis[i]['y'][tour])
-            d_fourmis[i]['pv'].append(d_fourmis[i]['pv'][tour] - 2)
+                d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
+                                              ((d_fourmis[i]['coords'][tour][1] - 1) % maxcoord)))
+            d_fourmis[i]['life'].append(d_fourmis[i]['life'][tour] - 2)
 
-        elif d_fourmis[i]['pv'][tour] > 0:
+        elif d_fourmis[i]['life'][tour] > 0:
             # la fourmi reste immobile
-            d_fourmis[i]['x'].append(d_fourmis[i]['x'][tour])
-            d_fourmis[i]['y'].append(d_fourmis[i]['y'][tour])
-            d_fourmis[i]['pv'].append(d_fourmis[i]['pv'][tour] - 1)
+            d_fourmis[i]['coords'].append(d_fourmis[i]['coords'][tour])
+            d_fourmis[i]['life'].append(d_fourmis[i]['life'][tour] - 1)
 
         else:
-            # la fourmi est mort
-            d_fourmis[i]['x'].append(d_fourmis[i]['x'][tour])
-            d_fourmis[i]['y'].append(d_fourmis[i]['y'][tour])
-            d_fourmis[i]['pv'].append(0)
+            # la fourmi est morte
+            d_fourmis[i]['coords'].append(d_fourmis[i]['coords'][tour])
+            d_fourmis[i]['life'].append(0)
 
         # recharge énergie quand fourmie est sur un point de nourriture nomnom
-        for j in range(args.nb_nourriture):
-            if (d_fourmis[i]['x'][tour+1] == foodx[j]
-                    and d_fourmis[i]['y'][tour+1] == foody[j]
-                    and d_fourmis[i]['pv'][tour] > 0):
-                d_fourmis[i]['pv'][tour+1] = args.pv_max
+        if (d_fourmis[i]['coords'][tour+1] in food
+                and d_fourmis[i]['life'][tour] > 0):
+            d_fourmis[i]['life'][tour+1] = args.pv_max
 
     # partage de nourriture
     # TODO nettoyer ce bordel
@@ -122,7 +124,7 @@ for tour in range(args.tours):
 if args.graphique is True:
     # utilise le module d'affichage graphique
     # TODO interface graphique maison ? -> pygames
-    ant_app = ant_animate.Visual_App(d_fourmis, foodx, foody, args.pv_max)
+    ant_app = ant_animate.Visual_App(d_fourmis, food, args.pv_max)
     ant_app.run()
 else:
     # affiche d_fourmis
