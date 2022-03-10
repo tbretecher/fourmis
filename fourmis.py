@@ -7,25 +7,33 @@ import ant_animate
 
 
 # TODO tourner jusqu'à ce que toutes fourmis mortes plutôt que tours
+# TODO grille commence à 1 ?
 
+# définit les options qu'on peut passer au programme
 parser = argparse.ArgumentParser()
+# nombre de foumis
 parser.add_argument('-f', '--nb-fourmis', default=20, type=int,
                     help='Le nombre de fourmis (20 par défaut).')
+# nombre de points de nourriture
 parser.add_argument('-n', '--nb-nourriture', default=10, type=int,
                     help='Le nombre de points de nourriture (10 par défaut).')
+# points de vie max des fourmis
 parser.add_argument('-v', '--pv-max', default=20, type=int,
                     help='Les points des vie des fourmis au début de la simulation (20 par défaut).')
+# nombre de tours de simulation
 parser.add_argument('-t', '--tours', default=20, type=int,
                     help='Le nombre de tours de simulation (20 par défaut).')
+# trophallaxie (partage de nourriture entre fourmis) ou non
 parser.add_argument('-p', '--trophallaxie', action='store_true',
                     help='Active le partage de nourriture.')
-parser.add_argument('-g', '--graphique', action='store_true',
-                    help="Active l'affichage graphique.")
+# affichage graphique ou non
+parser.add_argument('-g', '--graphique', action='store_false',
+                    help="Désactive l'affichage graphique.")
+# et stocke toutes les valeurs dans un objet
 args = parser.parse_args()
 
 mincoord = 0
 maxcoord = 20
-
 
 def init(nb_fourmis, nb_nourriture, pv_max, mincoord, maxcoord):
     all_coords = [(x, y) for x in range(mincoord, maxcoord)
@@ -61,10 +69,10 @@ for tour in range(args.tours):
                 d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] - 1) % maxcoord),
                                               (d_fourmis[i]['coords'][tour][1])))
             elif direction == 2:
-                # déplacement vers la droite 
+                # déplacement vers la droite
                 d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
                                               ((d_fourmis[i]['coords'][tour][1] + 1) % maxcoord)))
-            else: 
+            else:
                 # déplacement vers la gauche
                 d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
                                               ((d_fourmis[i]['coords'][tour][1] - 1) % maxcoord)))
@@ -89,10 +97,7 @@ for tour in range(args.tours):
     # TODO nettoyer ce bordel
     if args.trophallaxie is True:
         # coors des fourmis à ce tour:
-        xcoor = [d_fourmis[k]['x'][tour+1] for k in d_fourmis.keys()]
-        ycoor = [d_fourmis[k]['y'][tour+1] for k in d_fourmis.keys()]
-        # transforme deux listes en liste de tuples (x,y):
-        coors = list(zip(xcoor, ycoor))
+        coors = [d_fourmis[k]['coords'][tour+1] for k in d_fourmis.keys()]
         # récupère toutes les valeurs en double
         # (càd les cases où il y a plusieurs fourmies):
         coor_dupli = [dup for dup in coors if coors.count(dup) > 1]
@@ -102,21 +107,20 @@ for tour in range(args.tours):
         # si il y a des valeurs en double:
         if coor_uni_dupli:
             # pour chaque valeur en double:
-            for x, y in coor_uni_dupli:
+            for coor in coor_uni_dupli:
                 # créé une liste des noms des fourmies sur cette case
                 k_coor = [k for k in d_fourmis.keys()
-                          if d_fourmis[k]['x'][tour+1] == x
-                          and d_fourmis[k]['y'][tour+1] == y]
+                          if d_fourmis[k]['coords'][tour+1] == coor]
                 print(k_coor)
                 # créé une liste des pvs des fourmies sur cette case
-                pvs = [d_fourmis[k]['pv'][tour+1] for k in k_coor]
+                pvs = [d_fourmis[k]['life'][tour+1] for k in k_coor]
                 print(pvs)
                 # calcule les pvs après partage
                 partage = int(mean(pvs))
                 print(partage)
                 # assigne les pvs après partage aux fourmies sur la case
                 for k in k_coor:
-                    d_fourmis[k]['pv'][tour+1] = partage
+                    d_fourmis[k]['life'][tour+1] = partage
                     print('Trophallaxie !', tour)
 
 
