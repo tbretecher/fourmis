@@ -35,13 +35,17 @@ args = parser.parse_args()
 mincoord = 0
 maxcoord = 20
 
+# fonction pour initialiser food (la liste de tous les points de nourriture)
+# et d_foumis (un dictionnaire qui contient les coordonées et le nombre de
+# points de vie de chaque fourmis à chaque tour) en tirant au hasard des
+# coordonées parmi toutes les coordonées possibles
 def init(nb_fourmis, nb_nourriture, pv_max, mincoord, maxcoord):
+    # génère une liste de toutes les coordonées possibles
     all_coords = [(x, y) for x in range(mincoord, maxcoord)
                          for y in range(mincoord, maxcoord)]
-    ant_dict = {}
-    for i in range(args.nb_fourmis):
-        ant_dict[i] = {'coords': sample(all_coords, 1),
-                        'life': [pv_max]}
+    ant_dict = {i: {'coords': sample(all_coords, 1),
+                    'life': [pv_max]}
+                for i in range(nb_fourmis)}
     food = sample(all_coords, nb_nourriture)
     return food, ant_dict
 
@@ -94,34 +98,26 @@ for tour in range(args.tours):
             d_fourmis[i]['life'][tour+1] = args.pv_max
 
     # partage de nourriture
-    # TODO nettoyer ce bordel
     if args.trophallaxie is True:
         # coors des fourmis à ce tour:
-        coors = [d_fourmis[k]['coords'][tour+1] for k in d_fourmis.keys()]
+        coors_tour = [d_fourmis[f]['coords'][tour+1] for f in d_fourmis.keys()]
         # récupère toutes les valeurs en double
         # (càd les cases où il y a plusieurs fourmies):
-        coor_dupli = [dup for dup in coors if coors.count(dup) > 1]
-        # créé une liste des valeurs en double sans duplicats:
-        coor_uni_dupli = list(set(coor_dupli))
-        print(coor_uni_dupli)
+        coors_tropha = list(set([dup for dup in coors_tour if coors_tour.count(dup) > 1]))
         # si il y a des valeurs en double:
-        if coor_uni_dupli:
+        if coors_tropha:
             # pour chaque valeur en double:
-            for coor in coor_uni_dupli:
+            for coor in coors_tropha:
                 # créé une liste des noms des fourmies sur cette case
-                k_coor = [k for k in d_fourmis.keys()
-                          if d_fourmis[k]['coords'][tour+1] == coor]
-                print(k_coor)
+                fourm_coor_tropha = [f for f in d_fourmis.keys()
+                                       if d_fourmis[f]['coords'][tour+1] == coor]
                 # créé une liste des pvs des fourmies sur cette case
-                pvs = [d_fourmis[k]['life'][tour+1] for k in k_coor]
-                print(pvs)
+                pvs = [d_fourmis[f]['life'][tour+1] for f in fourm_coor_tropha]
                 # calcule les pvs après partage
                 partage = int(mean(pvs))
-                print(partage)
                 # assigne les pvs après partage aux fourmies sur la case
-                for k in k_coor:
-                    d_fourmis[k]['life'][tour+1] = partage
-                    print('Trophallaxie !', tour)
+                for f in fourm_coor_tropha:
+                    d_fourmis[f]['life'][tour+1] = partage
 
 
 if args.graphique is True:
