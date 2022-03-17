@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+# Simulation d'une population de fourmis
+# https://github.com/tbretecher/fourmis
 from random import randint
 from random import sample
 from statistics import mean
 import argparse
-import ant_animate
+import ant_animate # /!\ un petit peu modifié
 
 
 # définit les options qu'on peut passer au programme
