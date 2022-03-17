@@ -14,8 +14,8 @@ class Food:
 
     def map_coords(self, coords=(1,1)):
         return (
-            self._base_pos + (coords[0] - 1) * self.unit,
-            self._base_pos + 19 * self.unit - (coords[1] - 1) * self.unit,
+            self._base_pos + (coords[0]) * self.unit,
+            self._base_pos + 19 * self.unit - (coords[1]) * self.unit,
         )
 
     def create_food(self):
@@ -62,8 +62,8 @@ class Ant:
 
     def map_coords(self, coords=(1,1)):
         return (
-            self._base_pos + (coords[0] - 1) * self.unit,
-            self._base_pos + 19 * self.unit - (coords[1] - 1) * self.unit,
+            self._base_pos + (coords[0]) * self.unit,
+            self._base_pos + 19 * self.unit - (coords[1]) * self.unit,
         )
 
     def create_ant(self):

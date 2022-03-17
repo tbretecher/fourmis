@@ -6,9 +6,6 @@ import argparse
 import ant_animate
 
 
-# TODO tourner jusqu'à ce que toutes fourmis mortes plutôt que tours
-# TODO grille commence à 1 ?
-
 # définit les options qu'on peut passer au programme
 parser = argparse.ArgumentParser()
 # nombre de foumis
@@ -19,7 +16,8 @@ parser.add_argument('-n', '--nb-nourriture', default=10, type=int,
                     help='Le nombre de points de nourriture (10 par défaut).')
 # points de vie max des fourmis
 parser.add_argument('-v', '--pv-max', default=20, type=int,
-                    help='Les points des vie des fourmis au début de la simulation (20 par défaut).')
+                    help='Les points des vie des fourmis au début de la \
+                    simulation (20 par défaut).')
 # nombre de tours de simulation
 parser.add_argument('-t', '--tours', default=20, type=int,
                     help='Le nombre de tours de simulation (20 par défaut).')
@@ -32,24 +30,24 @@ parser.add_argument('-g', '--graphique', action='store_false',
 # et stocke toutes les valeurs dans un objet
 args = parser.parse_args()
 
-mincoord = 0
-maxcoord = 20
+# taille de la grille (fixée dans ant_animate)
+GRID_SIZE = 20
 
 # fonction pour initialiser food (la liste de tous les points de nourriture)
 # et d_foumis (un dictionnaire qui contient les coordonées et le nombre de
 # points de vie de chaque fourmis à chaque tour) en tirant au hasard des
 # coordonées parmi toutes les coordonées possibles
-def init(nb_fourmis, nb_nourriture, pv_max, mincoord, maxcoord):
+def init(nb_fourmis, nb_nourriture, pv_max, taille_grille):
     # génère une liste de toutes les coordonées possibles
-    all_coords = [(x, y) for x in range(mincoord, maxcoord)
-                         for y in range(mincoord, maxcoord)]
+    all_coords = [(x, y) for x in range(taille_grille)
+                         for y in range(taille_grille)]
     ant_dict = {i: {'coords': sample(all_coords, 1),
                     'life': [pv_max]}
                 for i in range(nb_fourmis)}
-    food = sample(all_coords, nb_nourriture)
-    return food, ant_dict
+    food_coords = sample(all_coords, nb_nourriture)
+    return food_coords, ant_dict
 
-food, d_fourmis = init(args.nb_fourmis, args.nb_nourriture, args.pv_max, mincoord, maxcoord)
+food, d_fourmis = init(args.nb_fourmis, args.nb_nourriture, args.pv_max, GRID_SIZE)
 
 
 for tour in range(args.tours):
@@ -66,20 +64,20 @@ for tour in range(args.tours):
             direction = randint(0, 3)
             if direction == 0:
                 # déplacement vers le haut
-                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] + 1) % maxcoord),
+                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] + 1) % GRID_SIZE),
                                               (d_fourmis[i]['coords'][tour][1])))
             elif direction == 1:
                 # déplacement vers le bas
-                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] - 1) % maxcoord),
+                d_fourmis[i]['coords'].append((((d_fourmis[i]['coords'][tour][0] - 1) % GRID_SIZE),
                                               (d_fourmis[i]['coords'][tour][1])))
             elif direction == 2:
                 # déplacement vers la droite
                 d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
-                                              ((d_fourmis[i]['coords'][tour][1] + 1) % maxcoord)))
+                                              ((d_fourmis[i]['coords'][tour][1] + 1) % GRID_SIZE)))
             else:
                 # déplacement vers la gauche
                 d_fourmis[i]['coords'].append(((d_fourmis[i]['coords'][tour][0]),
-                                              ((d_fourmis[i]['coords'][tour][1] - 1) % maxcoord)))
+                                              ((d_fourmis[i]['coords'][tour][1] - 1) % GRID_SIZE)))
             d_fourmis[i]['life'].append(d_fourmis[i]['life'][tour] - 2)
 
         elif d_fourmis[i]['life'][tour] > 0:
