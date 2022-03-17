@@ -1,0 +1,14 @@
+fourmis.py [-h] [-f NB_FOURMIS] [-n NB_NOURRITURE] [-v PV_MAX] [-t TOURS] [-p] [-g]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -f NB_FOURMIS, --nb-fourmis NB_FOURMIS
+                        Le nombre de fourmis (20 par défaut).
+  -n NB_NOURRITURE, --nb-nourriture NB_NOURRITURE
+                        Le nombre de points de nourriture (10 par défaut).
+  -v PV_MAX, --pv-max PV_MAX
+                        Les points des vie des fourmis au début de la simulation (20 par défaut).
+  -t TOURS, --tours TOURS
+                        Le nombre de tours de simulation (20 par défaut).
+  -p, --trophallaxie    Active le partage de nourriture.
+  -g, --graphique       Désactive l'affichage graphique.
